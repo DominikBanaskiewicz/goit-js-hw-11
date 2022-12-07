@@ -5,10 +5,6 @@ const loadMoreBtn = document.querySelector('.load-more');
 const searchInput = document.querySelector('form input');
 const searchBtn = document.querySelector('form button');
 
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-import SimpleLightbox from '../node_modules/simplelightbox/src/simple-lightbox.js';
-import SimpleLightbox from 'simplelightbox/dist/simple-lightbox.esm';
 const gallery = document.querySelector('.gallery');
 let talicaElementow = [];
 
