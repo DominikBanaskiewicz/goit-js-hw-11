@@ -1,3 +1,4 @@
+'use strict';
 const userKey = '31780969-fdde0daea91119d814167c909';
 import axios from 'axios';
 import Notiflix from 'notiflix';
@@ -129,5 +130,3 @@ loadMoreBtn.addEventListener('click', () => {
   pageCounter += 1;
   fetchImages(searchInput.value);
 });
-
-const galeria = new SimpleLightbox();
