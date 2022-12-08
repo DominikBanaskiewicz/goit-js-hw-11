@@ -2,69 +2,72 @@
 const userKey = '31780969-fdde0daea91119d814167c909';
 import axios from 'axios';
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 const loadMoreBtn = document.querySelector('.load-more');
 const searchInput = document.querySelector('form input');
 const searchBtn = document.querySelector('form button');
 
 const gallery = document.querySelector('.gallery');
-let talicaElementow = [];
 
 let pageCounter = 1;
 let isFirstSearch = true;
 loadMoreBtn.style.display = 'none';
 
-gallery.addEventListener('click', event => {
-  event.preventDefault();
-  console.log(event.target.parentElement);
-});
+// gallery.addEventListener('click', event => {
+//   event.preventDefault();
+//   console.log(event.target.parentElement);
+// });
+
 searchBtn.addEventListener('click', event => {
   event.preventDefault();
   newSearch(searchInput.value);
 });
 
-const imagesData = async searchString => {
-  await axios(
-    `https://pixabay.com/api/?key=${userKey}&q=${searchString}&image_type=photo$orientation=horizontal&safesearch=true?fields=webformatURL,largeImageURL,tags,likes,views,comments,downloads&per_page=40&page=${pageCounter}`
-  )
-    .then(function (response) {
-      console.log(response);
+// const imagesData = async searchString => {
+//   await axios
+//     .get(
+//       `https://pixabay.com/api/?key=${userKey}&q=${searchString}&image_type=photo$orientation=horizontal&safesearch=true?fields=webformatURL,largeImageURL,tags,likes,views,comments,downloads&per_page=40&page=${pageCounter}`
+//     )
+//     .then(function (response) {
+//       console.log(response);
 
-      if (response.data.hits.length != 0) {
-        copyImagesProperties(response.data.hits);
+//       if (response.data.hits.length != 0) {
+//         copyImagesProperties(response.data.hits);
 
-        renderImages(response.data.hits);
-        if (pageCounter === 1) {
-          loadMoreBtn.style.display = 'block';
-          Notiflix.Notify.info(
-            `Hooray! We found ${response.data.total} images.`
-          );
-          if (response.data.hits.length < 40) {
-            endReached();
-          }
-        }
-      } else {
-        return Notiflix.Notify.info(
-          '"Sorry, there are no images matching your search query. Please try again."'
-        );
-      }
-    })
-    .catch(error => {
-      Notiflix.Notify.failure('Server error');
-      console.log('errorrr: ', error);
-    });
-};
+//         renderImages(response.data.hits);
+//         if (pageCounter === 1) {
+//           loadMoreBtn.style.display = 'block';
+//           Notiflix.Notify.info(
+//             `Hooray! We found ${response.data.total} images.`
+//           );
+//           if (response.data.hits.length < 40) {
+//             endReached();
+//           }
+//         }
+//       } else {
+//         return Notiflix.Notify.info(
+//           '"Sorry, there are no images matching your search query. Please try again."'
+//         );
+//       }
+//     })
+//     .catch(error => {
+//       Notiflix.Notify.failure('Server error');
+//       console.log('errorrr: ', error);
+//     });
+// };
 const fetchImages = async searchString => {
   try {
-    const response = await axios(
+    const response = await axios.get(
       `https://pixabay.com/api/?key=${userKey}&q=${searchString}&image_type=photo$orientation=horizontal&safesearch=true?fields=webformatURL,largeImageURL,tags,likes,views,comments,downloads&per_page=40&page=${pageCounter}`
     );
     if (response.data.hits.length != 0) {
-      copyImagesProperties(response.data.hits); // dla simplelightbox
-
+      new SimpleLightbox('.gallery a');
       renderImages(response.data.hits);
       if (pageCounter === 1) {
         loadMoreBtn.style.display = 'block';
         Notiflix.Notify.info(`Hooray! We found ${response.data.total} images.`);
+        new SimpleLightbox('.gallery a');
         if (response.data.hits.length < 40) {
           endReached();
         }
@@ -85,12 +88,6 @@ const newSearch = searchString => {
     pageCounter = 1;
   }
   fetchImages(searchString);
-};
-
-const copyImagesProperties = data => {
-  data.map(elem => {
-    talicaElementow.push(elem);
-  });
 };
 
 const renderImages = data => {
