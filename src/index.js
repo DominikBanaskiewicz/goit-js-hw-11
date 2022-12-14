@@ -9,8 +9,8 @@ const searchInput = document.querySelector('form input');
 const searchBtn = document.querySelector('form button');
 
 const gallery = document.querySelector('.gallery');
-
 let pageCounter = 1;
+let simpleGallery = new SimpleLightbox('.gallery a');
 let isFirstSearch = true;
 loadMoreBtn.style.display = 'none';
 
@@ -61,13 +61,13 @@ const fetchImages = async searchString => {
     const response = await axios.get(
       `https://pixabay.com/api/?key=${userKey}&q=${searchString}&image_type=photo$orientation=horizontal&safesearch=true?fields=webformatURL,largeImageURL,tags,likes,views,comments,downloads&per_page=40&page=${pageCounter}`
     );
+
     if (response.data.hits.length != 0) {
-      new SimpleLightbox('.gallery a');
       renderImages(response.data.hits);
       if (pageCounter === 1) {
+        simpleGallery.refresh();
         loadMoreBtn.style.display = 'block';
         Notiflix.Notify.info(`Hooray! We found ${response.data.total} images.`);
-        new SimpleLightbox('.gallery a');
         if (response.data.hits.length < 40) {
           endReached();
         }
@@ -116,6 +116,7 @@ const renderImages = data => {
     })
     .join('');
   gallery.insertAdjacentHTML('beforeend', element);
+  simpleGallery.refresh();
 };
 const endReached = () => {
   Notiflix.Notify.failure(
@@ -125,5 +126,6 @@ const endReached = () => {
 };
 loadMoreBtn.addEventListener('click', () => {
   pageCounter += 1;
+
   fetchImages(searchInput.value);
 });
