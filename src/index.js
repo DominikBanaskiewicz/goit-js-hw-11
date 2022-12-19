@@ -13,8 +13,17 @@ const gallery = document.querySelector('.gallery');
 let pageCounter = 1;
 let simpleGallery = new SimpleLightbox('.gallery a');
 let isFirstSearch = true;
-loadMoreBtn.style.display = 'none';
-loadMoreDiv.style.display = 'none';
+const loadMoreVisible = value => {
+  if (value) {
+    loadMoreBtn.style.display = 'block';
+    loadMoreDiv.style.display = 'flex';
+  } else {
+    loadMoreBtn.style.display = 'none';
+    loadMoreDiv.style.display = 'none';
+  }
+};
+
+loadMoreVisible(false);
 
 searchBtn.addEventListener('click', event => {
   event.preventDefault();
@@ -31,8 +40,7 @@ const fetchImages = async searchString => {
       renderImages(response.data.hits);
       if (pageCounter === 1) {
         simpleGallery.refresh();
-        loadMoreBtn.style.display = 'block';
-        loadMoreDiv.style.display = 'flex';
+        loadMoreVisible(true);
         Notiflix.Notify.info(`Hooray! We found ${response.data.total} images.`);
         if (response.data.hits.length < 40) {
           endReached();
@@ -49,6 +57,7 @@ const fetchImages = async searchString => {
 };
 
 const newSearch = searchString => {
+  loadMoreVisible(false);
   if (!isFirstSearch) {
     gallery.innerHTML = '';
     pageCounter = 1;
@@ -88,8 +97,7 @@ const endReached = () => {
   Notiflix.Notify.failure(
     "We're sorry, but you've reached the end of search results."
   );
-  loadMoreBtn.style.display = 'none';
-  loadMoreDiv.style.display = 'none';
+  loadMoreVisible(false);
 };
 loadMoreBtn.addEventListener('click', () => {
   pageCounter += 1;
