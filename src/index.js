@@ -7,55 +7,20 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 const loadMoreBtn = document.querySelector('.load-more');
 const searchInput = document.querySelector('form input');
 const searchBtn = document.querySelector('form button');
+const loadMoreDiv = document.querySelector('.load-more-footer');
 
 const gallery = document.querySelector('.gallery');
 let pageCounter = 1;
 let simpleGallery = new SimpleLightbox('.gallery a');
 let isFirstSearch = true;
 loadMoreBtn.style.display = 'none';
-
-// gallery.addEventListener('click', event => {
-//   event.preventDefault();
-//   console.log(event.target.parentElement);
-// });
+loadMoreDiv.style.display = 'none';
 
 searchBtn.addEventListener('click', event => {
   event.preventDefault();
   newSearch(searchInput.value);
 });
 
-// const imagesData = async searchString => {
-//   await axios
-//     .get(
-//       `https://pixabay.com/api/?key=${userKey}&q=${searchString}&image_type=photo$orientation=horizontal&safesearch=true?fields=webformatURL,largeImageURL,tags,likes,views,comments,downloads&per_page=40&page=${pageCounter}`
-//     )
-//     .then(function (response) {
-//       console.log(response);
-
-//       if (response.data.hits.length != 0) {
-//         copyImagesProperties(response.data.hits);
-
-//         renderImages(response.data.hits);
-//         if (pageCounter === 1) {
-//           loadMoreBtn.style.display = 'block';
-//           Notiflix.Notify.info(
-//             `Hooray! We found ${response.data.total} images.`
-//           );
-//           if (response.data.hits.length < 40) {
-//             endReached();
-//           }
-//         }
-//       } else {
-//         return Notiflix.Notify.info(
-//           '"Sorry, there are no images matching your search query. Please try again."'
-//         );
-//       }
-//     })
-//     .catch(error => {
-//       Notiflix.Notify.failure('Server error');
-//       console.log('errorrr: ', error);
-//     });
-// };
 const fetchImages = async searchString => {
   try {
     const response = await axios.get(
@@ -67,6 +32,7 @@ const fetchImages = async searchString => {
       if (pageCounter === 1) {
         simpleGallery.refresh();
         loadMoreBtn.style.display = 'block';
+        loadMoreDiv.style.display = 'flex';
         Notiflix.Notify.info(`Hooray! We found ${response.data.total} images.`);
         if (response.data.hits.length < 40) {
           endReached();
@@ -92,7 +58,7 @@ const newSearch = searchString => {
 
 const renderImages = data => {
   isFirstSearch = false;
-  console.log(data);
+  // console.log(data);
   const element = data
     .map(elem => {
       return `
@@ -100,16 +66,16 @@ const renderImages = data => {
        <a href=${elem.largeImageURL}><img src="${elem.webformatURL}" width="300" height="200" alt="" loading="lazy" /></a>
       <div class="info">
      <p class="info-item">
-        <b>Likes: ${elem.likes}</b>
+        <b><span>Likes:</span></b> <span> ${elem.likes}</span>
       </p>
      <p class="info-item">
-        <b>Views: ${elem.views}</b>
+        <b><span>Views:</span></b><span>${elem.views}</span>
      </p>
      <p class="info-item">
-       <b>Comments :${elem.comments}</b>
+       <b><span>Comments:</span></b>${elem.comments}</span>
       </p>
       <p class="info-item">
-         <b>Downloads :${elem.downloads}</b>
+         <b><span>Downloads:</span></b><span>${elem.downloads}</span>
     </p>
   </div>
 </div>`;
@@ -123,6 +89,7 @@ const endReached = () => {
     "We're sorry, but you've reached the end of search results."
   );
   loadMoreBtn.style.display = 'none';
+  loadMoreDiv.style.display = 'none';
 };
 loadMoreBtn.addEventListener('click', () => {
   pageCounter += 1;
