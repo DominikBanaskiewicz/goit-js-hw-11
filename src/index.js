@@ -11,6 +11,7 @@ const loadMoreDiv = document.querySelector('.load-more-footer');
 
 const gallery = document.querySelector('.gallery');
 let pageCounter = 1;
+let numbersOfPagesToRender = 0;
 let simpleGallery = new SimpleLightbox('.gallery a');
 let isFirstSearch = true;
 const loadMoreVisible = value => {
@@ -22,7 +23,6 @@ const loadMoreVisible = value => {
     loadMoreDiv.style.display = 'none';
   }
 };
-
 loadMoreVisible(false);
 
 searchBtn.addEventListener('click', event => {
@@ -47,6 +47,7 @@ const fetchImages = async searchString => {
         }
       }
     } else {
+      loadMoreVisible(false);
       return Notiflix.Notify.info(
         '"Sorry, there are no images matching your search query. Please try again."'
       );
@@ -67,7 +68,7 @@ const newSearch = searchString => {
 
 const renderImages = data => {
   isFirstSearch = false;
-  // console.log(data);
+  numbersOfPagesToRender -= 1;
   const element = data
     .map(elem => {
       return `
@@ -94,10 +95,10 @@ const renderImages = data => {
   simpleGallery.refresh();
 };
 const endReached = () => {
+  loadMoreVisible(false);
   Notiflix.Notify.failure(
     "We're sorry, but you've reached the end of search results."
   );
-  loadMoreVisible(false);
 };
 loadMoreBtn.addEventListener('click', () => {
   pageCounter += 1;
