@@ -4,18 +4,29 @@ import axios from 'axios';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { throttle } from 'throttle-debounce';
 const loadMoreBtn = document.querySelector('.load-more');
 const searchInput = document.querySelector('form input');
 const searchBtn = document.querySelector('form button');
 const loadMoreDiv = document.querySelector('.load-more-footer');
-
+const scrollTopBtn = document.querySelector('.scrollTopButton');
 const gallery = document.querySelector('.gallery');
+const loadFormBtn = document.querySelector('.loadModeBtn');
+let loadMoreVisiblecheck = false;
+let autoScrollFlag = true;
+//
+
+let galleryItemsLimit = 0;
+let galleryItemsRendered = 0;
 let pageCounter = 1;
 let numbersOfPagesToRender = 0;
 let simpleGallery = new SimpleLightbox('.gallery a');
 let isFirstSearch = true;
+scrollTopBtn.style.display = 'none';
+//
+
 const loadMoreVisible = value => {
-  if (value) {
+  if (value && loadMoreVisiblecheck && searchInput.value != '') {
     loadMoreBtn.style.display = 'block';
     loadMoreDiv.style.display = 'flex';
   } else {
@@ -35,16 +46,14 @@ const fetchImages = async searchString => {
     const response = await axios.get(
       `https://pixabay.com/api/?key=${userKey}&q=${searchString}&image_type=photo$orientation=horizontal&safesearch=true?fields=webformatURL,largeImageURL,tags,likes,views,comments,downloads&per_page=40&page=${pageCounter}`
     );
-
+    galleryItemsLimit = response.data.total;
+    console.log(galleryItemsLimit);
     if (response.data.hits.length != 0) {
       renderImages(response.data.hits);
       if (pageCounter === 1) {
         simpleGallery.refresh();
         loadMoreVisible(true);
         Notiflix.Notify.info(`Hooray! We found ${response.data.total} images.`);
-        if (response.data.hits.length < 40) {
-          endReached();
-        }
       }
     } else {
       loadMoreVisible(false);
@@ -62,6 +71,7 @@ const newSearch = searchString => {
   if (!isFirstSearch) {
     gallery.innerHTML = '';
     pageCounter = 1;
+    galleryItemsRendered = 0;
   }
   fetchImages(searchString);
 };
@@ -69,8 +79,11 @@ const newSearch = searchString => {
 const renderImages = data => {
   isFirstSearch = false;
   numbersOfPagesToRender -= 1;
+
   const element = data
     .map(elem => {
+      galleryItemsRendered += 1;
+
       return `
       <div class="photo-card">
        <a href=${elem.largeImageURL}><img src="${elem.webformatURL}" width="300" height="200" alt="" loading="lazy" /></a>
@@ -93,6 +106,16 @@ const renderImages = data => {
     .join('');
   gallery.insertAdjacentHTML('beforeend', element);
   simpleGallery.refresh();
+  if (galleryItemsRendered === galleryItemsLimit) {
+    endReached();
+  }
+  let abc = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+  window.scrollTo({
+    top: Math.abs(abc.top),
+    behavior: 'smooth',
+  });
 };
 const endReached = () => {
   loadMoreVisible(false);
@@ -102,6 +125,70 @@ const endReached = () => {
 };
 loadMoreBtn.addEventListener('click', () => {
   pageCounter += 1;
-
   fetchImages(searchInput.value);
+});
+
+//Scroll Top button
+
+const scrollFunction = () => {
+  if (document.documentElement.scrollTop > 20) {
+    scrollTopBtn.style.display = 'block';
+  } else {
+    scrollTopBtn.style.display = 'none';
+  }
+};
+window.onscroll = () => {
+  scrollFunction();
+};
+
+const goTopFunction = () => {
+  document.documentElement.scrollTop = 0;
+};
+scrollTopBtn.addEventListener('click', () => {
+  goTopFunction();
+});
+
+//  Infinite Scroll
+
+const loadmore = () => {
+  pageCounter += 1;
+  fetchImages(searchInput.value);
+};
+
+const handleScroll = autoScrollFlag => {
+  if (autoScrollFlag) {
+    const endOfPage =
+      window.innerHeight + window.pageYOffset >= document.body.offsetHeight;
+    if (endOfPage && galleryItemsRendered < galleryItemsLimit) loadmore(); // sprawdzam czy znalazłem się na koncu strony oraz czy wyrenderowane zostały wszystkie obrazy
+  }
+};
+
+window.addEventListener(
+  'scroll',
+  throttle(250, () => {
+    handleScroll(autoScrollFlag);
+  })
+);
+
+// dynamiczne przełącznie pomiędzy infinite scroll a on demand
+
+const loadFormBtnAction = () => {
+  const checkValue = () => {
+    if (loadFormBtn.innerText === 'Auto load') {
+      loadMoreVisiblecheck = true;
+      loadMoreVisible(true);
+      autoScrollFlag = false;
+      return 'On demand';
+    }
+    if (loadFormBtn.innerText === 'On demand') {
+      loadMoreVisible(false);
+      autoScrollFlag = true;
+      return 'Auto load';
+    }
+  };
+  loadFormBtn.innerText = checkValue();
+};
+
+loadFormBtn.addEventListener('click', () => {
+  loadFormBtnAction();
 });

@@ -7,16 +7,17 @@
   justify-content: center;
   align-items: center;
   background-color: rgba(32, 32, 149, 0.785);
+  position: relative;
 }
 
 .search-form input,
-.search-form button {
+.searchBtn {
   height: 40px;
   fill-opacity: 1;
   border: none;
   overflow: hidden;
 }
-.search-form button {
+.searchBtn {
   position: absolute;
   width: 40px;
   border-top-right-radius: 5px;
@@ -30,7 +31,7 @@
   border-bottom-left-radius: 5px;
 }
 
-.search-form > button {
+.searchBtn {
   border-left: none;
   border: none;
   width: 40px;
@@ -88,4 +89,24 @@
 .load-more-footer {
   background-color: rgba(32, 32, 149, 0.785);
   padding: 10px 0;
+}
+.scrollTopButton {
+  width: 64px;
+  height: 64px;
+  position: fixed;
+  z-index: 99999999;
+  border-radius: 50%;
+  right: 30px;
+  bottom: 30px;
+  opacity: 50%;
+}
+.information {
+  display: none;
+}
+.loadModeBtn {
+  position: absolute;
+  left: 30px;
+  border: none;
+  height: 40px;
+  border-radius: 5px;
 }
